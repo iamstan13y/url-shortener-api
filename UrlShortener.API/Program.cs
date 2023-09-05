@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using UrlShortener.API.Entities;
 using UrlShortener.API.Extensions;
@@ -6,13 +7,16 @@ using UrlShortener.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<AppDbContext>(o =>
+o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<UrlShorteningService>();
+builder.Services.AddScoped
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-
-builder.Services.AddDbContext<AppDbContext>(o =>
-o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 if (app.Environment.IsDevelopment())
 {
@@ -22,13 +26,11 @@ if (app.Environment.IsDevelopment())
     app.ApplyMigrations();
 }
 
-app.UseHttpsRedirection();
-
 app.MapPost("api/shorten", async (
-    ShortenUrlRequest request,
-    UrlShorteningService urlShorteningService,
-    AppDbContext context,
-    HttpContext httpContext) =>
+    [FromBody] ShortenUrlRequest request,
+    [FromServices] UrlShorteningService urlShorteningService,
+    [FromServices] AppDbContext context,
+    [FromServices] HttpContext httpContext) =>
 {
     if (!Uri.TryCreate(request.Url, UriKind.Absolute, out _))
     {
@@ -50,5 +52,7 @@ app.MapPost("api/shorten", async (
 
     return Results.Ok(shortenedUrl.ShortUrl);
 });
+
+app.UseHttpsRedirection();
 
 app.Run();

@@ -5,7 +5,7 @@ namespace UrlShortener.API.Entities;
 
 public class AppDbContext : DbContext
 {
-    protected AppDbContext(DbContextOptions options) 
+    public AppDbContext(DbContextOptions options) 
         : base(options)
     {
     }
