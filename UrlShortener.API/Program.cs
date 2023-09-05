@@ -10,9 +10,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(o =>
 o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<UrlShorteningService>();
-builder.Services.AddScoped
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -28,9 +25,9 @@ if (app.Environment.IsDevelopment())
 
 app.MapPost("api/shorten", async (
     [FromBody] ShortenUrlRequest request,
-    [FromServices] UrlShorteningService urlShorteningService,
-    [FromServices] AppDbContext context,
-    [FromServices] HttpContext httpContext) =>
+    UrlShorteningService urlShorteningService,
+    AppDbContext context,
+    HttpContext httpContext) =>
 {
     if (!Uri.TryCreate(request.Url, UriKind.Absolute, out _))
     {
